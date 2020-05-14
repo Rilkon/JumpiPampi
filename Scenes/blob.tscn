@@ -1,0 +1,55 @@
+[gd_scene load_steps=12 format=2]
+
+[ext_resource path="res://Assets/blob/blob_walk_3.png" type="Texture" id=1]
+[ext_resource path="res://Assets/blob/blob_walk_2.png" type="Texture" id=2]
+[ext_resource path="res://Assets/blob/blob_walk_1.png" type="Texture" id=3]
+[ext_resource path="res://Assets/blob/blob_walk_0.png" type="Texture" id=4]
+[ext_resource path="res://Assets/blob/blob_die_0.png" type="Texture" id=5]
+[ext_resource path="res://Assets/blob/blob_die_1.png" type="Texture" id=6]
+[ext_resource path="res://Assets/blob/blob_die_2.png" type="Texture" id=7]
+[ext_resource path="res://blob.gd" type="Script" id=8]
+[ext_resource path="res://Assets/blob/blob_jump_0.png" type="Texture" id=9]
+
+[sub_resource type="SpriteFrames" id=1]
+animations = [ {
+"frames": [ ExtResource( 9 ) ],
+"loop": true,
+"name": "jump",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 4 ), ExtResource( 3 ), ExtResource( 2 ), ExtResource( 1 ) ],
+"loop": true,
+"name": "walk",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 5 ), ExtResource( 6 ), ExtResource( 7 ) ],
+"loop": false,
+"name": "die",
+"speed": 10.0
+} ]
+
+[sub_resource type="CapsuleShape2D" id=2]
+radius = 2.44783
+height = 6.05718
+
+[node name="Blob" type="KinematicBody2D"]
+script = ExtResource( 8 )
+
+[node name="AnimatedSprite" type="AnimatedSprite" parent="."]
+position = Vector2( 0, -8 )
+frames = SubResource( 1 )
+animation = "walk"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2( -0.0909268, -2.39668 )
+rotation = -1.5708
+shape = SubResource( 2 )
+
+[node name="RayCastLeft" type="RayCast2D" parent="."]
+position = Vector2( -4.95836, -1 )
+cast_to = Vector2( 0, 10 )
+
+[node name="RayCastRight" type="RayCast2D" parent="."]
+position = Vector2( 5.88892, -1.06944 )
+cast_to = Vector2( 0, 10 )
+[connection signal="animation_finished" from="AnimatedSprite" to="." method="_on_AnimatedSprite_animation_finished"]

@@ -1,0 +1,258 @@
+[gd_scene load_steps=18 format=2]
+
+[ext_resource path="res://Assets/Player.png" type="Texture" id=1]
+[ext_resource path="res://Assets/Flamethrower.png" type="Texture" id=2]
+
+[sub_resource type="GDScript" id=9]
+script/source = "extends KinematicBody2D
+
+const GRAVITY 	= 400
+const SPEED 	= 60
+const JUMPSPEED = 150
+const UP_VECTOR = Vector2(0,-1)
+const invul_tick = 25
+
+var movement 		= Vector2()
+var invulnerability = 0
+
+var hearts		= 3
+
+func _ready():
+	pass
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta):
+	
+	if invulnerability >= invul_tick:
+		invulnerability -= invul_tick
+	
+	movement.x = 0	
+	movement.y += GRAVITY * delta
+	
+	check_key_input()
+	check_for_stomp()
+	
+	movement = move_and_slide(movement, UP_VECTOR)
+
+	set_animation()
+
+
+func check_for_stomp():
+	for body in $HitBox.get_overlapping_bodies():
+		
+		#only for enemies (attribute of object)
+		if body.get(\"is_an_enemy\") == true:
+			if body.has_method(\"on_stomp\") and body.is_alive:
+				
+				# Only perform the stomp from above
+				if body.get_global_position().y > $HitBox/HitBoxCollisionShape.get_global_position().y +7:
+
+					body.on_stomp()
+					movement.y = -JUMPSPEED * 0.8
+				else:
+					if invulnerability == 0:
+						hearts -= 1
+						hit_recovery()
+
+func hit_recovery():
+	invulnerability = invul_tick * 20
+	
+	
+func set_animation():
+	
+	if movement.x < 0:
+		
+		set_flip_h(true)
+		$AnimationPlayer.play(\"walk\")
+		
+	if movement.x > 0:
+		
+		set_flip_h(false)
+		$AnimationPlayer.play(\"walk\")
+	
+	if movement.x == 0:
+		$AnimationPlayer.play(\"idle\")
+		
+	if is_in_air():
+		$AnimationPlayer.play(\"air\")
+		
+		
+func set_flip_h(input):
+	$Sprite.flip_h								= input
+	$Flamethrower/Handgun.flip_h 				= input
+	if input == true:
+		$Flamethrower/Particles2D.scale.x  		= -1
+		$Flamethrower/Particles2D.position.x 	= -6
+	else:
+		$Flamethrower/Particles2D.scale.x  		= 1
+		$Flamethrower/Particles2D.position.x 	= 6
+		
+
+func is_in_air():
+	return is_on_floor() == false
+
+func check_key_input():
+	if Input.is_action_pressed(\"left\"):
+		movement.x = -1 * SPEED
+	
+	if Input.is_action_pressed(\"right\"):
+		movement.x = 1 * SPEED
+		
+	if Input.is_action_just_pressed(\"jump\") and (is_on_wall() or is_on_floor()):
+		movement.y = -JUMPSPEED
+"
+
+[sub_resource type="RectangleShape2D" id=10]
+extents = Vector2( 4.86391, 4.73793 )
+
+[sub_resource type="CircleShape2D" id=11]
+radius = 2.51223
+
+[sub_resource type="Animation" id=12]
+resource_name = "air"
+tracks/0/type = "value"
+tracks/0/path = NodePath("Sprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ 8 ]
+}
+
+[sub_resource type="Animation" id=13]
+length = 0.6
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("Sprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.6 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 0, 4 ]
+}
+
+[sub_resource type="Animation" id=14]
+resource_name = "walk"
+length = 0.6
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("Sprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.6 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 4, 8 ]
+}
+
+[sub_resource type="Gradient" id=1]
+offsets = PoolRealArray( 0, 0.0867052, 0.179191, 0.387283, 0.641618, 0.83815, 1 )
+colors = PoolColorArray( 0.941406, 0.923335, 0.816376, 1, 0.921875, 0.861001, 0.586975, 1, 0.802207, 0.683653, 0.171074, 1, 0.744141, 0.445637, 0.142433, 1, 0.888672, 0.364237, 0.121498, 1, 0.689453, 0.159823, 0.0646362, 1, 0.745098, 0.309804, 0.231373, 0.6 )
+
+[sub_resource type="GradientTexture" id=2]
+gradient = SubResource( 1 )
+
+[sub_resource type="Curve" id=3]
+max_value = 100.0
+_data = [ Vector2( 0, 1 ), 0.0, 0.0, 0, 0, Vector2( 0.464286, 5.34091 ), 0.0, 0.0, 0, 0, Vector2( 0.72449, 35.3409 ), 123.357, 123.357, 0, 0, Vector2( 0.857143, 80.7955 ), 0.0, 0.0, 0, 0, Vector2( 1, 97.9545 ), 0.0, 0.0, 0, 0 ]
+
+[sub_resource type="CurveTexture" id=4]
+curve = SubResource( 3 )
+
+[sub_resource type="Curve" id=5]
+min_value = -200.0
+max_value = 500.0
+_data = [ Vector2( 0, 484.886 ), 0.0, 921.897, 0, 0, Vector2( 0.0969388, 160.341 ), -3430.0, -3430.0, 0, 0, Vector2( 0.153061, -132.386 ), -73.3691, -73.3691, 0, 0, Vector2( 1, -187.273 ), -169.122, 0.0, 0, 0 ]
+
+[sub_resource type="CurveTexture" id=6]
+curve = SubResource( 5 )
+
+[sub_resource type="ParticlesMaterial" id=7]
+flag_disable_z = true
+spread = 1.0
+gravity = Vector3( 10, 0, 0 )
+initial_velocity = 100.0
+initial_velocity_random = 0.49
+orbit_velocity = 0.04
+orbit_velocity_random = 1.0
+linear_accel_curve = SubResource( 6 )
+radial_accel = 10.0
+radial_accel_random = 1.0
+damping_curve = SubResource( 4 )
+scale = 0.3
+scale_random = 1.0
+color_ramp = SubResource( 2 )
+
+[sub_resource type="Environment" id=8]
+glow_enabled = true
+glow_levels/1 = true
+glow_levels/2 = true
+glow_levels/5 = false
+glow_intensity = 1.5
+glow_strength = 1.18
+glow_blend_mode = 0
+
+[sub_resource type="CapsuleShape2D" id=15]
+radius = 5.13219
+height = 0.23378
+
+[node name="Player" type="KinematicBody2D"]
+position = Vector2( 73.188, 55.789 )
+script = SubResource( 9 )
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="Sprite" type="Sprite" parent="."]
+position = Vector2( 0.287247, -2.65414 )
+texture = ExtResource( 1 )
+vframes = 8
+hframes = 8
+frame = 8
+
+[node name="PlayerCollisionShape2D" type="CollisionShape2D" parent="."]
+visible = false
+position = Vector2( 0.379677, 0.013855 )
+shape = SubResource( 10 )
+
+[node name="PlayerCollisionShape2D2" type="CollisionShape2D" parent="."]
+visible = false
+position = Vector2( 0.29258, 2.47842 )
+shape = SubResource( 11 )
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+anims/air = SubResource( 12 )
+anims/idle = SubResource( 13 )
+anims/walk = SubResource( 14 )
+
+[node name="Flamethrower" type="Node2D" parent="."]
+
+[node name="Particles2D" type="Particles2D" parent="Flamethrower"]
+position = Vector2( 6, 1 )
+scale = Vector2( 1, 3.5 )
+amount = 700
+local_coords = false
+process_material = SubResource( 7 )
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Flamethrower/Particles2D"]
+environment = SubResource( 8 )
+
+[node name="Handgun" type="Sprite" parent="Flamethrower"]
+texture = ExtResource( 2 )
+
+[node name="HitBox" type="Area2D" parent="."]
+
+[node name="HitBoxCollisionShape" type="CollisionShape2D" parent="HitBox"]
+visible = false
+shape = SubResource( 15 )

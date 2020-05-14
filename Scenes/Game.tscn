@@ -1,0 +1,127 @@
+[gd_scene load_steps=8 format=2]
+
+[ext_resource path="res://Assets/Victory.png" type="Texture" id=1]
+[ext_resource path="res://Assets/heart/heart_empty.png" type="Texture" id=4]
+[ext_resource path="res://CanvasLayer.gd" type="Script" id=5]
+[ext_resource path="res://Game.gd" type="Script" id=6]
+[ext_resource path="res://Assets/heart/heart_filled.png" type="Texture" id=7]
+[ext_resource path="res://Assets/GameOver.png" type="Texture" id=8]
+
+[sub_resource type="SpriteFrames" id=1]
+animations = [ {
+"frames": [ ExtResource( 4 ) ],
+"loop": false,
+"name": "empty",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 7 ) ],
+"loop": false,
+"name": "filled",
+"speed": 5.0
+} ]
+
+[node name="Game" type="Node2D"]
+script = ExtResource( 6 )
+
+[node name="InGame" type="Node2D" parent="."]
+position = Vector2( -0.639038, 0.57909 )
+
+[node name="Camera2D" type="Camera2D" parent="."]
+current = true
+limit_left = 0
+limit_top = 0
+limit_right = 450
+limit_bottom = 175
+limit_smoothed = true
+smoothing_enabled = true
+smoothing_speed = 15.0
+drag_margin_left = 0.0
+drag_margin_top = 0.0
+drag_margin_right = 0.0
+drag_margin_bottom = 0.0
+editor_draw_limits = true
+editor_draw_drag_margin = true
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+script = ExtResource( 5 )
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Heart1" type="AnimatedSprite" parent="CanvasLayer"]
+position = Vector2( 139.302, 7.1532 )
+scale = Vector2( 0.25, 0.25 )
+frames = SubResource( 1 )
+animation = "filled"
+
+[node name="Heart2" type="AnimatedSprite" parent="CanvasLayer"]
+position = Vector2( 146.302, 7.1532 )
+scale = Vector2( 0.25, 0.25 )
+frames = SubResource( 1 )
+animation = "filled"
+
+[node name="Heart3" type="AnimatedSprite" parent="CanvasLayer"]
+position = Vector2( 153.302, 7.1532 )
+scale = Vector2( 0.25, 0.25 )
+frames = SubResource( 1 )
+animation = "filled"
+
+[node name="Game Over" type="Sprite" parent="CanvasLayer"]
+visible = false
+position = Vector2( 80.8951, 40.1985 )
+scale = Vector2( 0.762042, 0.668624 )
+texture = ExtResource( 8 )
+
+[node name="Game Won" type="Sprite" parent="CanvasLayer"]
+visible = false
+position = Vector2( 81.0878, 42.419 )
+scale = Vector2( 0.75, 0.75 )
+texture = ExtResource( 1 )
+
+[node name="GameOverDialog" type="AcceptDialog" parent="CanvasLayer"]
+visible = true
+anchor_left = 0.0156935
+anchor_top = 0.578742
+anchor_right = 0.993694
+anchor_bottom = 1.58874
+margin_left = 19.1759
+margin_top = 14.6337
+margin_right = -6.30411
+margin_bottom = -18.2663
+grow_horizontal = 2
+grow_vertical = 2
+rect_min_size = Vector2( 131, 58 )
+rect_scale = Vector2( 0.25, 0.25 )
+rect_pivot_offset = Vector2( 55, 62 )
+size_flags_horizontal = 4
+size_flags_vertical = 4
+window_title = "Game Over"
+dialog_text = "Restart the game?"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="GameWonDialog" type="AcceptDialog" parent="CanvasLayer"]
+visible = true
+anchor_left = 0.0156935
+anchor_top = 0.578742
+anchor_right = 0.993694
+anchor_bottom = 1.58874
+margin_left = 19.1759
+margin_top = 14.6337
+margin_right = -6.30411
+margin_bottom = -18.2663
+grow_horizontal = 2
+grow_vertical = 2
+rect_min_size = Vector2( 131, 58 )
+rect_scale = Vector2( 0.25, 0.25 )
+rect_pivot_offset = Vector2( 55, 62 )
+size_flags_horizontal = 4
+size_flags_vertical = 4
+window_title = "You Won!"
+dialog_text = "Restart the game?"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+[connection signal="confirmed" from="CanvasLayer/GameOverDialog" to="." method="_on_GameOverDialog_confirmed"]
+[connection signal="confirmed" from="CanvasLayer/GameWonDialog" to="." method="_on_GameOverDialog_confirmed"]
